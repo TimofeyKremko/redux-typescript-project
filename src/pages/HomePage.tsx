@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect  } from "react";
+import { useDebounce } from "../hooks/debounce";
 import { useSearchUsersQuery } from "../store/github/github.api";
 
 export default function HomePage() {
   const [search, setSearch] = useState("");
-  const { isError, isLoading, data } = useSearchUsersQuery("tsimafei");
+  const debounced =  useDebounce(search)
+  const { isError, isLoading, data } = useSearchUsersQuery(debounced, {
+    skip: debounced.length < 3,
+  });
 
   useEffect(() => {
-    console.log(search)
-  }, [search]);
+    console.log(search);
+  }, [debounced]);
 
   return (
     <div className="flex justify-center pt-10 mx-auto h-screen w-screen">
@@ -23,10 +27,9 @@ export default function HomePage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <div className="absolute top-[42px] left-0 right-0 max-h-[200px] shadow-md bg-white">
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veniam,
-          enim?
-        </div>
+        <ul className="list-none absolute top-[42px] left-0 right-0 max-h-[200px] shadow-md bg-white">
+          { isLoading && <p className="text-center">Loading...</p> }
+        </ul>
       </div>
     </div>
   );
